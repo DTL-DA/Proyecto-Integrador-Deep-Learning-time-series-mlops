@@ -1,0 +1,1478 @@
+
+<!DOCTYPE html>
+
+
+<html lang="es" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Modelo de Volatilidad &#8212; Proyecto Integrador — Predicción de Velocidad del Viento con MLP</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=78d55cf8"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>let toggleHintShow = 'Haz clic para mostrar';</script>
+    <script>let toggleHintHide = 'Haz clic para ocultar';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=b8b12719"></script>
+    <script src="../_static/translations.js?v=d190bf04"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/5_volatility_model';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Índice" href="../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../search.html" />
+    <link rel="prev" title="Diagnóstico de Residuos" href="4_residual_analysis.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="es"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Saltar al contenido principal</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Volver arriba</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Advertencia de versión"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Navegación del sitio">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Búsqueda</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Búsqueda</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="En esta página">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Proyecto Integrador — Predicción de Velocidad del Viento con MLP</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Búsqueda</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../intro.html">
+                    Predicción de Velocidad del Viento con MLP y MLOps
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="1_eda.html">1. Análisis Exploratorio de Datos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_architecture_search.html">2. Búsqueda de Arquitectura MLP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_model_training.html">3. Entrenamiento y Evaluación</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_residual_analysis.html">4. Análisis de Residuos</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">5. Modelo de Volatilidad</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/DTL-DA/Proyecto-Integrador-Deep-Learning-time-series-mlops" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Repositorio de origen"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Descarga esta pagina">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/notebooks/5_volatility_model.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Descargar archivo fuente"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Imprimir en PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Modo de pantalla completa"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Tema" data-bs-title="Tema"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Claro"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Oscuro"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="Sistema"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Modelo de Volatilidad</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contenido </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduccion">1. Introducción</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datos-parametros-y-arquitecturas">2. Datos, parámetros y arquitecturas</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#funciones-auxiliares">3. Funciones auxiliares</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validacion-cruzada-forward-chaining-5-folds">4. Validación cruzada (Forward Chaining, 5 folds)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mlp-frente-a-persistencia-en-validacion">5. MLP frente a persistencia en validación</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modelo-final-de-volatilidad-y-evaluacion-en-el-hold-out">6. Modelo final de volatilidad y evaluación en el hold-out</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#volatilidad-real-y-predicha-en-el-hold-out">6.1 Volatilidad real y predicha en el hold-out</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusiones">7. Conclusiones</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#referencias">Referencias</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="modelo-de-volatilidad">
+<h1>Modelo de Volatilidad<a class="headerlink" href="#modelo-de-volatilidad" title="Link to this heading">#</a></h1>
+<p><strong>Proyecto Integrador · Aprendizaje Profundo</strong>
+Estación A001 — Brasília, DF · 2020–2026</p>
+<hr class="docutils" />
+<section id="introduccion">
+<h2>1. Introducción<a class="headerlink" href="#introduccion" title="Link to this heading">#</a></h2>
+<p>El enunciado pide un modelo orientado tanto al <strong>nivel</strong> de la serie como a su <strong>volatilidad o variabilidad</strong>. Los cuadernos 2 y 3 modelan el nivel (velocidad del viento). Este cuaderno modela la volatilidad con el mismo protocolo de validación.</p>
+<p>La volatilidad es la <strong>volatilidad histórica realizada</strong> calculada en el EDA (cuaderno 1): la desviación estándar móvil de 28 días de los retornos logarítmicos,</p>
+<div class="math notranslate nohighlight">
+\[\sigma_t = \sqrt{\frac{1}{n-1}\sum_{i=0}^{n-1}\left(r_{t-i}-\bar r_t\right)^2}, \qquad r_t = \ln\frac{v_t}{v_{t-1}}, \qquad n = 28,\]</div>
+<p>donde <span class="math notranslate nohighlight">\(v_t\)</span> es la velocidad media diaria del viento. El MLP recibe los últimos <code class="docutils literal notranslate"><span class="pre">lag</span></code> valores de <span class="math notranslate nohighlight">\(\sigma_t\)</span> y predice <span class="math notranslate nohighlight">\(\sigma_{t+1}, …, \sigma_{t+H}\)</span>, solo a partir de observaciones históricas.</p>
+<p>Decisiones de diseño:</p>
+<ul class="simple">
+<li><p><strong>Mismo protocolo que el cuaderno 3:</strong> Forward Chaining de <code class="docutils literal notranslate"><span class="pre">timeseries-cv</span></code> agrupado en 5 folds con purga, escaladores ajustados solo con el entrenamiento y el mismo hold-out temporal (último 10 %). Se usa solo Forward Chaining porque fue la estrategia elegida en el cuaderno 3 por respetar la causalidad.</p></li>
+<li><p><strong>Arquitecturas reutilizadas:</strong> para cada combinación lag × horizonte se usa la arquitectura elegida en el cuaderno 2 para el nivel, que tiene la misma dimensión de entrada y de salida. No se repite la búsqueda, que costaría otros 734 entrenamientos.</p></li>
+<li><p><strong>Referencia de persistencia:</strong> una desviación estándar móvil de 28 días cambia muy despacio, de modo que predecir <span class="math notranslate nohighlight">\(\hat\sigma_{t+h} = \sigma_t\)</span> ya es una referencia exigente. El MLP solo aporta valor si mejora a la persistencia.</p></li>
+</ul>
+<hr class="docutils" />
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'TF_CPP_MIN_LOG_LEVEL'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'2'</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">gc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">'ignore'</span><span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">joblib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">display</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">mean_absolute_error</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.tsa.stattools</span><span class="w"> </span><span class="kn">import</span> <span class="n">bds</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tsxv.splitTrainVal</span><span class="w"> </span><span class="kn">import</span> <span class="n">split_train_val_forwardChaining</span>
+
+<span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">'ERROR'</span><span class="p">)</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">set_random_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+    <span class="s1">'figure.dpi'</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>
+    <span class="s1">'axes.prop_cycle'</span><span class="p">:</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">cycler</span><span class="p">(</span><span class="s1">'color'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'#000000'</span><span class="p">,</span> <span class="s1">'#444444'</span><span class="p">,</span> <span class="s1">'#888888'</span><span class="p">,</span> <span class="s1">'#bbbbbb'</span><span class="p">]),</span>
+    <span class="s1">'axes.grid'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">'grid.alpha'</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+    <span class="s1">'font.size'</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">'axes.titlesize'</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="n">BASE_DIR</span>    <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+<span class="n">DATA_PATH</span>   <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span> <span class="s1">'data'</span><span class="p">,</span> <span class="s1">'dataset.csv'</span><span class="p">)</span>
+<span class="n">RESULTS_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span> <span class="s1">'results'</span><span class="p">)</span>
+<span class="n">APP_DIR</span>     <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span> <span class="s1">'app'</span><span class="p">)</span>
+<span class="n">FIGS_DIR</span>    <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">'figs'</span><span class="p">)</span>
+<span class="n">LOG_PATH</span>    <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">RESULTS_DIR</span><span class="p">,</span> <span class="s1">'progreso_volatilidad.log'</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">FIGS_DIR</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'TensorFlow: </span><span class="si">{</span><span class="n">tf</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>TensorFlow: 2.21.0
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="datos-parametros-y-arquitecturas">
+<h2>2. Datos, parámetros y arquitecturas<a class="headerlink" href="#datos-parametros-y-arquitecturas" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="p">[</span><span class="s1">'date'</span><span class="p">])</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'date'</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s1">'2020-01-01'</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">y_full</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'volatility'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">fechas</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'date'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+<span class="n">LAGS_LIST</span>     <span class="o">=</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">28</span><span class="p">]</span>
+<span class="n">HORIZONS_LIST</span> <span class="o">=</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">28</span><span class="p">]</span>
+<span class="n">N_STEPS_JUMP</span>  <span class="o">=</span> <span class="mi">7</span>
+<span class="n">HOLDOUT_FRAC</span>  <span class="o">=</span> <span class="mf">0.10</span>
+<span class="n">K_FOLDS</span>       <span class="o">=</span> <span class="mi">5</span>
+<span class="n">EPOCHS_FINAL</span>  <span class="o">=</span> <span class="mi">100</span>
+<span class="n">BATCH_SIZE</span>    <span class="o">=</span> <span class="mi">32</span>
+<span class="n">DROPOUT_RATE</span>  <span class="o">=</span> <span class="mf">0.5</span>
+
+<span class="n">n_hold</span>        <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_full</span><span class="p">)</span> <span class="o">*</span> <span class="n">HOLDOUT_FRAC</span><span class="p">),</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">HORIZONS_LIST</span><span class="p">))</span>
+<span class="n">serie_cv</span>      <span class="o">=</span> <span class="n">y_full</span><span class="p">[:</span><span class="o">-</span><span class="n">n_hold</span><span class="p">]</span>
+<span class="n">serie_holdout</span> <span class="o">=</span> <span class="n">y_full</span><span class="p">[</span><span class="o">-</span><span class="n">n_hold</span><span class="p">:]</span>
+<span class="n">fechas_cv</span>     <span class="o">=</span> <span class="n">fechas</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">serie_cv</span><span class="p">)]</span>
+<span class="n">fechas_ho</span>     <span class="o">=</span> <span class="n">fechas</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">serie_cv</span><span class="p">):]</span>
+
+<span class="n">arch_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">RESULTS_DIR</span><span class="p">,</span> <span class="s1">'best_architecture_summary.csv'</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_best_arch</span><span class="p">(</span><span class="n">lag</span><span class="p">,</span> <span class="n">H</span><span class="p">):</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="n">arch_df</span><span class="p">[(</span><span class="n">arch_df</span><span class="o">.</span><span class="n">lag</span> <span class="o">==</span> <span class="n">lag</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">arch_df</span><span class="o">.</span><span class="n">horizonte</span> <span class="o">==</span> <span class="n">H</span><span class="p">)]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">'arquitectura'</span><span class="p">]),</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">'dropout_mask'</span><span class="p">])</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Volatilidad 2020-2026: media=</span><span class="si">{</span><span class="n">y_full</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">, desv.=</span><span class="si">{</span><span class="n">y_full</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">, min=</span><span class="si">{</span><span class="n">y_full</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">, max=</span><span class="si">{</span><span class="n">y_full</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Serie CV: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">serie_cv</span><span class="p">)</span><span class="si">}</span><span class="s1"> | Hold-out: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">serie_holdout</span><span class="p">)</span><span class="si">}</span><span class="s1"> (desde </span><span class="si">{</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">fechas_ho</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s1">)'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Volatilidad 2020-2026: media=0.2420, desv.=0.0347, min=0.1537, max=0.3460
+Serie CV: 2247 | Hold-out: 249 (desde 2026-02-25)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="funciones-auxiliares">
+<h2>3. Funciones auxiliares<a class="headerlink" href="#funciones-auxiliares" title="Link to this heading">#</a></h2>
+<p>Las funciones de partición, modelo y métricas son las del cuaderno 3. <code class="docutils literal notranslate"><span class="pre">persistencia</span></code> construye la referencia <span class="math notranslate nohighlight">\(\hat\sigma_{t+h} = \sigma_t\)</span> para todos los pasos del horizonte.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">registrar</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+    <span class="n">linea</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'[</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%H:%M:%S"</span><span class="p">)</span><span class="si">}</span><span class="s1">] </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s1">'</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">linea</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">LOG_PATH</span><span class="p">,</span> <span class="s1">'a'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">linea</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">particiones_fc</span><span class="p">(</span><span class="n">n_obs</span><span class="p">,</span> <span class="n">lag</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">jump</span><span class="o">=</span><span class="n">N_STEPS_JUMP</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">K_FOLDS</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Forward Chaining de tsxv agrupado en k folds con purga (índices temporales)."""</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">Xcv</span><span class="p">,</span> <span class="n">ycv</span> <span class="o">=</span> <span class="n">split_train_val_forwardChaining</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_obs</span><span class="p">),</span> <span class="n">numInputs</span><span class="o">=</span><span class="n">lag</span><span class="p">,</span> <span class="n">numOutputs</span><span class="o">=</span><span class="n">H</span><span class="p">,</span> <span class="n">numJumps</span><span class="o">=</span><span class="n">jump</span><span class="p">)</span>
+    <span class="n">folds</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">bordes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">folds</span><span class="p">),</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">salida</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">folds_val</span> <span class="o">=</span> <span class="n">folds</span><span class="p">[</span><span class="n">bordes</span><span class="p">[</span><span class="n">b</span><span class="p">]:</span><span class="n">bordes</span><span class="p">[</span><span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span>
+        <span class="n">Xv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">Xcv</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">folds_val</span><span class="p">])</span>
+        <span class="n">yv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">ycv</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">folds_val</span><span class="p">])</span>
+        <span class="n">Xt</span><span class="p">,</span> <span class="n">yt</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">folds_val</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">y</span><span class="p">[</span><span class="n">folds_val</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">sin_solape</span> <span class="o">=</span> <span class="n">yt</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">Xv</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">salida</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">Xt</span><span class="p">[</span><span class="n">sin_solape</span><span class="p">],</span> <span class="n">yt</span><span class="p">[</span><span class="n">sin_solape</span><span class="p">],</span> <span class="n">Xv</span><span class="p">,</span> <span class="n">yv</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">salida</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">ventanas_holdout</span><span class="p">(</span><span class="n">lag</span><span class="p">,</span> <span class="n">H</span><span class="p">):</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">serie_cv</span><span class="p">[</span><span class="o">-</span><span class="n">lag</span><span class="p">:],</span> <span class="n">serie_holdout</span><span class="p">])</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">base</span><span class="p">)</span> <span class="o">-</span> <span class="n">lag</span> <span class="o">-</span> <span class="n">H</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">base</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">lag</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">base</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">lag</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">lag</span> <span class="o">+</span> <span class="n">H</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">construir_modelo</span><span class="p">(</span><span class="n">arquitectura</span><span class="p">,</span> <span class="n">dropout_mask</span><span class="p">,</span> <span class="n">input_dim</span><span class="p">,</span> <span class="n">n_outputs</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=</span><span class="n">DROPOUT_RATE</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">()</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,)))</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">units</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">arquitectura</span><span class="p">):</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">dropout_mask</span><span class="p">[</span><span class="n">idx</span><span class="p">]:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">dropout_rate</span><span class="p">))</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">n_outputs</span><span class="p">))</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">'adam'</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">'mse'</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">RootMeanSquaredError</span><span class="p">()])</span>
+    <span class="k">return</span> <span class="n">model</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">callbacks_entrenamiento</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">ReduceLROnPlateau</span><span class="p">(</span><span class="n">monitor</span><span class="o">=</span><span class="s1">'val_loss'</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">min_lr</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">),</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">monitor</span><span class="o">=</span><span class="s1">'val_loss'</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">min_delta</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
+                                         <span class="n">restore_best_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">start_from_epoch</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+    <span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">metricas</span><span class="p">(</span><span class="n">y_real</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+    <span class="n">rmse_h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">y_real</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">'rmse'</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">rmse_h</span><span class="o">.</span><span class="n">mean</span><span class="p">()),</span>
+        <span class="s1">'mae'</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_real</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">))),</span>
+        <span class="s1">'mse'</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">y_real</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)),</span>
+        <span class="s1">'mape'</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">y_real</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_real</span><span class="p">)))</span> <span class="o">*</span> <span class="mi">100</span><span class="p">),</span>
+        <span class="s1">'rmse_h'</span><span class="p">:</span> <span class="n">rmse_h</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">persistencia</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">H</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">:],</span> <span class="n">H</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">bds_pvalue</span><span class="p">(</span><span class="n">resid</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">pval</span> <span class="o">=</span> <span class="n">bds</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">resid</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">max_dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">pval</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s1">'nan'</span><span class="p">)</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Funciones auxiliares definidas.'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Funciones auxiliares definidas.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="validacion-cruzada-forward-chaining-5-folds">
+<h2>4. Validación cruzada (Forward Chaining, 5 folds)<a class="headerlink" href="#validacion-cruzada-forward-chaining-5-folds" title="Link to this heading">#</a></h2>
+<p>Para cada combinación lag × horizonte y cada fold se entrena el MLP y se compara con la persistencia en el mismo conjunto de validación. El avance queda en <code class="docutils literal notranslate"><span class="pre">results/progreso_volatilidad.log</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fold_rows</span><span class="p">,</span> <span class="n">h_rows</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">LOG_PATH</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">LOG_PATH</span><span class="p">)</span>
+<span class="n">registrar</span><span class="p">(</span><span class="s1">'Inicio: modelo de volatilidad, 16 combinaciones × 5 folds (Forward Chaining)'</span><span class="p">)</span>
+<span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">configs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">lag</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span> <span class="k">for</span> <span class="n">lag</span> <span class="ow">in</span> <span class="n">LAGS_LIST</span> <span class="k">for</span> <span class="n">H</span> <span class="ow">in</span> <span class="n">HORIZONS_LIST</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">n_cfg</span><span class="p">,</span> <span class="p">(</span><span class="n">lag</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">configs</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">arch</span><span class="p">,</span> <span class="n">dmask</span> <span class="o">=</span> <span class="n">get_best_arch</span><span class="p">(</span><span class="n">lag</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">fold</span><span class="p">,</span> <span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="n">iyt</span><span class="p">,</span> <span class="n">iv</span><span class="p">,</span> <span class="n">iyv</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">particiones_fc</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">serie_cv</span><span class="p">),</span> <span class="n">lag</span><span class="p">,</span> <span class="n">H</span><span class="p">),</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">Xt</span><span class="p">,</span> <span class="n">yt</span><span class="p">,</span> <span class="n">Xv</span><span class="p">,</span> <span class="n">yv</span> <span class="o">=</span> <span class="n">serie_cv</span><span class="p">[</span><span class="n">it</span><span class="p">],</span> <span class="n">serie_cv</span><span class="p">[</span><span class="n">iyt</span><span class="p">],</span> <span class="n">serie_cv</span><span class="p">[</span><span class="n">iv</span><span class="p">],</span> <span class="n">serie_cv</span><span class="p">[</span><span class="n">iyv</span><span class="p">]</span>
+        <span class="n">sx</span><span class="p">,</span> <span class="n">sy</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xt</span><span class="p">),</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">yt</span><span class="p">)</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">clear_session</span><span class="p">()</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">construir_modelo</span><span class="p">(</span><span class="n">arch</span><span class="p">,</span> <span class="n">dmask</span><span class="p">,</span> <span class="n">lag</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
+        <span class="n">hist</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">sx</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Xt</span><span class="p">),</span> <span class="n">sy</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">yt</span><span class="p">),</span>
+                         <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">sx</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Xv</span><span class="p">),</span> <span class="n">sy</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">yv</span><span class="p">)),</span>
+                         <span class="n">epochs</span><span class="o">=</span><span class="n">EPOCHS_FINAL</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                         <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks_entrenamiento</span><span class="p">())</span>
+        <span class="n">yhat</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">model</span><span class="p">(</span><span class="n">sx</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Xv</span><span class="p">),</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+        <span class="n">m</span><span class="p">,</span> <span class="n">mp</span> <span class="o">=</span> <span class="n">metricas</span><span class="p">(</span><span class="n">yv</span><span class="p">,</span> <span class="n">yhat</span><span class="p">),</span> <span class="n">metricas</span><span class="p">(</span><span class="n">yv</span><span class="p">,</span> <span class="n">persistencia</span><span class="p">(</span><span class="n">Xv</span><span class="p">,</span> <span class="n">H</span><span class="p">))</span>
+        <span class="n">fold_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">'lag'</span><span class="p">:</span> <span class="n">lag</span><span class="p">,</span> <span class="s1">'horizonte'</span><span class="p">:</span> <span class="n">H</span><span class="p">,</span> <span class="s1">'fold'</span><span class="p">:</span> <span class="n">fold</span><span class="p">,</span> <span class="s1">'n_train'</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">Xt</span><span class="p">),</span> <span class="s1">'n_val'</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">Xv</span><span class="p">),</span>
+            <span class="s1">'rmse'</span><span class="p">:</span> <span class="n">m</span><span class="p">[</span><span class="s1">'rmse'</span><span class="p">],</span> <span class="s1">'mae'</span><span class="p">:</span> <span class="n">m</span><span class="p">[</span><span class="s1">'mae'</span><span class="p">],</span> <span class="s1">'mse'</span><span class="p">:</span> <span class="n">m</span><span class="p">[</span><span class="s1">'mse'</span><span class="p">],</span> <span class="s1">'mape'</span><span class="p">:</span> <span class="n">m</span><span class="p">[</span><span class="s1">'mape'</span><span class="p">],</span>
+            <span class="s1">'rmse_persistencia'</span><span class="p">:</span> <span class="n">mp</span><span class="p">[</span><span class="s1">'rmse'</span><span class="p">],</span> <span class="s1">'mape_persistencia'</span><span class="p">:</span> <span class="n">mp</span><span class="p">[</span><span class="s1">'mape'</span><span class="p">],</span>
+            <span class="s1">'bds_pvalue_h1'</span><span class="p">:</span> <span class="n">bds_pvalue</span><span class="p">(</span><span class="n">yv</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">yhat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]),</span>
+            <span class="s1">'mejor_epoca'</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">'val_loss'</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">})</span>
+        <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">H</span><span class="p">):</span>
+            <span class="n">h_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">'lag'</span><span class="p">:</span> <span class="n">lag</span><span class="p">,</span> <span class="s1">'horizonte'</span><span class="p">:</span> <span class="n">H</span><span class="p">,</span> <span class="s1">'fold'</span><span class="p">:</span> <span class="n">fold</span><span class="p">,</span> <span class="s1">'h'</span><span class="p">:</span> <span class="n">h</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                           <span class="s1">'rmse'</span><span class="p">:</span> <span class="n">m</span><span class="p">[</span><span class="s1">'rmse_h'</span><span class="p">][</span><span class="n">h</span><span class="p">],</span> <span class="s1">'rmse_persistencia'</span><span class="p">:</span> <span class="n">mp</span><span class="p">[</span><span class="s1">'rmse_h'</span><span class="p">][</span><span class="n">h</span><span class="p">]})</span>
+        <span class="k">del</span> <span class="n">model</span>
+    <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+    <span class="n">transcurrido</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span>
+    <span class="n">registrar</span><span class="p">(</span><span class="sa">f</span><span class="s1">'lag=</span><span class="si">{</span><span class="n">lag</span><span class="si">}</span><span class="s1"> H=</span><span class="si">{</span><span class="n">H</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">n_cfg</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span><span class="si">}</span><span class="s1">) | </span><span class="si">{</span><span class="n">transcurrido</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">60</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> min | '</span>
+              <span class="sa">f</span><span class="s1">'faltan ~</span><span class="si">{</span><span class="n">transcurrido</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n_cfg</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">n_cfg</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">60</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> min'</span><span class="p">)</span>
+
+<span class="n">vol_folds</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">fold_rows</span><span class="p">)</span>
+<span class="n">vol_h</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">h_rows</span><span class="p">)</span>
+<span class="n">vol_folds</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">RESULTS_DIR</span><span class="p">,</span> <span class="s1">'vol_cv_metricas_por_fold.csv'</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">vol_h</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">RESULTS_DIR</span><span class="p">,</span> <span class="s1">'vol_cv_metricas_por_h.csv'</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">registrar</span><span class="p">(</span><span class="s1">'Validación cruzada de volatilidad terminada'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:32:18] Inicio: modelo de volatilidad, 16 combinaciones × 5 folds (Forward Chaining)
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:33:12] lag=7 H=7 (1/16) | 0.9 min | faltan ~13.4 min
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:33:43] lag=7 H=14 (2/16) | 1.4 min | faltan ~9.9 min
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:34:29] lag=7 H=21 (3/16) | 2.2 min | faltan ~9.5 min
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:35:24] lag=7 H=28 (4/16) | 3.1 min | faltan ~9.3 min
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:35:59] lag=14 H=7 (5/16) | 3.7 min | faltan ~8.1 min
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:36:29] lag=14 H=14 (6/16) | 4.2 min | faltan ~7.0 min
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:37:00] lag=14 H=21 (7/16) | 4.7 min | faltan ~6.0 min
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:37:50] lag=14 H=28 (8/16) | 5.5 min | faltan ~5.5 min
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:38:38] lag=21 H=7 (9/16) | 6.3 min | faltan ~4.9 min
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:39:20] lag=21 H=14 (10/16) | 7.0 min | faltan ~4.2 min
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:40:08] lag=21 H=21 (11/16) | 7.8 min | faltan ~3.6 min
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:41:08] lag=21 H=28 (12/16) | 8.8 min | faltan ~2.9 min
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:42:00] lag=28 H=7 (13/16) | 9.7 min | faltan ~2.2 min
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:42:51] lag=28 H=14 (14/16) | 10.6 min | faltan ~1.5 min
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:43:37] lag=28 H=21 (15/16) | 11.3 min | faltan ~0.8 min
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:44:30] lag=28 H=28 (16/16) | 12.2 min | faltan ~0.0 min
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:44:30] Validación cruzada de volatilidad terminada
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="mlp-frente-a-persistencia-en-validacion">
+<h2>5. MLP frente a persistencia en validación<a class="headerlink" href="#mlp-frente-a-persistencia-en-validacion" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">mejora_%</span></code> es la reducción relativa del RMSE del MLP respecto de la persistencia: un valor positivo indica que el MLP predice mejor que repetir la última volatilidad observada.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">vol_comp</span> <span class="o">=</span> <span class="p">(</span><span class="n">vol_folds</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">'lag'</span><span class="p">,</span> <span class="s1">'horizonte'</span><span class="p">])</span>
+            <span class="p">[[</span><span class="s1">'rmse'</span><span class="p">,</span> <span class="s1">'rmse_persistencia'</span><span class="p">,</span> <span class="s1">'mape'</span><span class="p">,</span> <span class="s1">'mape_persistencia'</span><span class="p">,</span> <span class="s1">'mae'</span><span class="p">,</span> <span class="s1">'mse'</span><span class="p">,</span> <span class="s1">'bds_pvalue_h1'</span><span class="p">]]</span>
+            <span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">())</span>
+<span class="n">vol_comp</span><span class="p">[</span><span class="s1">'mejora_%'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">vol_comp</span><span class="p">[</span><span class="s1">'rmse'</span><span class="p">]</span> <span class="o">/</span> <span class="n">vol_comp</span><span class="p">[</span><span class="s1">'rmse_persistencia'</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">vol_comp</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">RESULTS_DIR</span><span class="p">,</span> <span class="s1">'vol_cv_comparativa.csv'</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">vol_comp</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'=== RMSE val MLP — lag × horizonte ==='</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">vol_comp</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">'lag'</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">'horizonte'</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">'rmse'</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'=== Mejora del MLP sobre la persistencia (%) — lag × horizonte ==='</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">vol_comp</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">'lag'</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">'horizonte'</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">'mejora_%'</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">lag</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">LAGS_LIST</span><span class="p">):</span>
+    <span class="n">sub</span> <span class="o">=</span> <span class="n">vol_comp</span><span class="p">[</span><span class="n">vol_comp</span><span class="o">.</span><span class="n">lag</span> <span class="o">==</span> <span class="n">lag</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'horizonte'</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sub</span><span class="o">.</span><span class="n">horizonte</span><span class="p">,</span> <span class="n">sub</span><span class="o">.</span><span class="n">rmse</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="p">[</span><span class="s1">'-'</span><span class="p">,</span> <span class="s1">'--'</span><span class="p">,</span> <span class="s1">':'</span><span class="p">,</span> <span class="s1">'-.'</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'o'</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                 <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s1">'black'</span><span class="p">,</span> <span class="s1">'dimgray'</span><span class="p">,</span> <span class="s1">'gray'</span><span class="p">,</span> <span class="s1">'darkgray'</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'MLP lag=</span><span class="si">{</span><span class="n">lag</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="n">per</span> <span class="o">=</span> <span class="n">vol_comp</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">'horizonte'</span><span class="p">)[</span><span class="s1">'rmse_persistencia'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">per</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">per</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Persistencia'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Horizonte H (días)'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'RMSE validación (σ)'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">HORIZONS_LIST</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'RMSE de validación vs. horizonte'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">H</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">HORIZONS_LIST</span><span class="p">):</span>
+    <span class="n">lag_b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">vol_comp</span><span class="p">[</span><span class="n">vol_comp</span><span class="o">.</span><span class="n">horizonte</span> <span class="o">==</span> <span class="n">H</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'rmse'</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'lag'</span><span class="p">])</span>
+    <span class="n">sub</span> <span class="o">=</span> <span class="n">vol_h</span><span class="p">[(</span><span class="n">vol_h</span><span class="o">.</span><span class="n">lag</span> <span class="o">==</span> <span class="n">lag_b</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">vol_h</span><span class="o">.</span><span class="n">horizonte</span> <span class="o">==</span> <span class="n">H</span><span class="p">)]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">'h'</span><span class="p">)[[</span><span class="s1">'rmse'</span><span class="p">,</span> <span class="s1">'rmse_persistencia'</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sub</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">sub</span><span class="o">.</span><span class="n">rmse</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="p">[</span><span class="s1">'-'</span><span class="p">,</span> <span class="s1">'--'</span><span class="p">,</span> <span class="s1">':'</span><span class="p">,</span> <span class="s1">'-.'</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s1">'black'</span><span class="p">,</span> <span class="s1">'dimgray'</span><span class="p">,</span> <span class="s1">'gray'</span><span class="p">,</span> <span class="s1">'darkgray'</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                 <span class="n">lw</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'MLP H=</span><span class="si">{</span><span class="n">H</span><span class="si">}</span><span class="s1"> (lag=</span><span class="si">{</span><span class="n">lag_b</span><span class="si">}</span><span class="s1">)'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sub</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">sub</span><span class="o">.</span><span class="n">rmse_persistencia</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Persistencia'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Paso h'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'RMSE validación (σ)'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'RMSE por paso de horizonte (mejor lag de cada H)'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FIGS_DIR</span><span class="p">,</span> <span class="s1">'vol_rmse_vs_horizonte.png'</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>lag</th>
+      <th>horizonte</th>
+      <th>rmse</th>
+      <th>rmse_persistencia</th>
+      <th>mape</th>
+      <th>mape_persistencia</th>
+      <th>mae</th>
+      <th>mse</th>
+      <th>bds_pvalue_h1</th>
+      <th>mejora_%</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>7</td>
+      <td>7</td>
+      <td>0.0175</td>
+      <td>0.0180</td>
+      <td>6.0616</td>
+      <td>5.8396</td>
+      <td>0.0139</td>
+      <td>0.0003</td>
+      <td>0.1725</td>
+      <td>2.9765</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>7</td>
+      <td>14</td>
+      <td>0.0229</td>
+      <td>0.0253</td>
+      <td>8.0711</td>
+      <td>8.3379</td>
+      <td>0.0184</td>
+      <td>0.0006</td>
+      <td>0.3066</td>
+      <td>9.2239</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>7</td>
+      <td>21</td>
+      <td>0.0266</td>
+      <td>0.0303</td>
+      <td>9.5826</td>
+      <td>10.1249</td>
+      <td>0.0217</td>
+      <td>0.0008</td>
+      <td>0.1652</td>
+      <td>12.1112</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>7</td>
+      <td>28</td>
+      <td>0.0286</td>
+      <td>0.0345</td>
+      <td>10.3647</td>
+      <td>11.5843</td>
+      <td>0.0234</td>
+      <td>0.0009</td>
+      <td>0.2472</td>
+      <td>17.1661</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>14</td>
+      <td>7</td>
+      <td>0.0180</td>
+      <td>0.0181</td>
+      <td>6.3364</td>
+      <td>5.8504</td>
+      <td>0.0144</td>
+      <td>0.0003</td>
+      <td>0.1172</td>
+      <td>0.3575</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>14</td>
+      <td>14</td>
+      <td>0.0234</td>
+      <td>0.0253</td>
+      <td>8.2311</td>
+      <td>8.3153</td>
+      <td>0.0188</td>
+      <td>0.0006</td>
+      <td>0.1979</td>
+      <td>7.6888</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>14</td>
+      <td>21</td>
+      <td>0.0264</td>
+      <td>0.0303</td>
+      <td>9.4476</td>
+      <td>10.0826</td>
+      <td>0.0214</td>
+      <td>0.0007</td>
+      <td>0.4066</td>
+      <td>12.9104</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>14</td>
+      <td>28</td>
+      <td>0.0287</td>
+      <td>0.0345</td>
+      <td>10.3433</td>
+      <td>11.5469</td>
+      <td>0.0234</td>
+      <td>0.0009</td>
+      <td>0.1898</td>
+      <td>16.8135</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>21</td>
+      <td>7</td>
+      <td>0.0186</td>
+      <td>0.0181</td>
+      <td>6.4649</td>
+      <td>5.8445</td>
+      <td>0.0148</td>
+      <td>0.0004</td>
+      <td>0.3899</td>
+      <td>-2.6895</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>21</td>
+      <td>14</td>
+      <td>0.0235</td>
+      <td>0.0254</td>
+      <td>8.3002</td>
+      <td>8.3133</td>
+      <td>0.0189</td>
+      <td>0.0006</td>
+      <td>0.2733</td>
+      <td>7.1867</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>21</td>
+      <td>21</td>
+      <td>0.0269</td>
+      <td>0.0304</td>
+      <td>9.6165</td>
+      <td>10.0882</td>
+      <td>0.0218</td>
+      <td>0.0008</td>
+      <td>0.2346</td>
+      <td>11.3629</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>21</td>
+      <td>28</td>
+      <td>0.0288</td>
+      <td>0.0346</td>
+      <td>10.3213</td>
+      <td>11.5687</td>
+      <td>0.0234</td>
+      <td>0.0009</td>
+      <td>0.3286</td>
+      <td>16.8559</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>28</td>
+      <td>7</td>
+      <td>0.0196</td>
+      <td>0.0182</td>
+      <td>6.9101</td>
+      <td>5.8764</td>
+      <td>0.0158</td>
+      <td>0.0004</td>
+      <td>0.3095</td>
+      <td>-7.6801</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>28</td>
+      <td>14</td>
+      <td>0.0236</td>
+      <td>0.0254</td>
+      <td>8.3306</td>
+      <td>8.3347</td>
+      <td>0.0191</td>
+      <td>0.0006</td>
+      <td>0.5053</td>
+      <td>7.2265</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>28</td>
+      <td>21</td>
+      <td>0.0276</td>
+      <td>0.0304</td>
+      <td>9.9123</td>
+      <td>10.1146</td>
+      <td>0.0225</td>
+      <td>0.0008</td>
+      <td>0.3912</td>
+      <td>9.4578</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>28</td>
+      <td>28</td>
+      <td>0.0297</td>
+      <td>0.0347</td>
+      <td>10.7185</td>
+      <td>11.5789</td>
+      <td>0.0244</td>
+      <td>0.0009</td>
+      <td>0.1646</td>
+      <td>14.3604</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>=== RMSE val MLP — lag × horizonte ===
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>horizonte</th>
+      <th>7</th>
+      <th>14</th>
+      <th>21</th>
+      <th>28</th>
+    </tr>
+    <tr>
+      <th>lag</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>7</th>
+      <td>0.0175</td>
+      <td>0.0229</td>
+      <td>0.0266</td>
+      <td>0.0286</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>0.0180</td>
+      <td>0.0234</td>
+      <td>0.0264</td>
+      <td>0.0287</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>0.0186</td>
+      <td>0.0235</td>
+      <td>0.0269</td>
+      <td>0.0288</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>0.0196</td>
+      <td>0.0236</td>
+      <td>0.0276</td>
+      <td>0.0297</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>=== Mejora del MLP sobre la persistencia (%) — lag × horizonte ===
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>horizonte</th>
+      <th>7</th>
+      <th>14</th>
+      <th>21</th>
+      <th>28</th>
+    </tr>
+    <tr>
+      <th>lag</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>7</th>
+      <td>3.0</td>
+      <td>9.2</td>
+      <td>12.1</td>
+      <td>17.2</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>0.4</td>
+      <td>7.7</td>
+      <td>12.9</td>
+      <td>16.8</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>-2.7</td>
+      <td>7.2</td>
+      <td>11.4</td>
+      <td>16.9</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>-7.7</td>
+      <td>7.2</td>
+      <td>9.5</td>
+      <td>14.4</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><img alt="../_images/e01785946395b7551fb7890809af176fedf0a165d9ce8348bb4351d44f477dba.png" src="../_images/e01785946395b7551fb7890809af176fedf0a165d9ce8348bb4351d44f477dba.png" />
+</div>
+</div>
+<p><strong>Interpretación.</strong> En validación el MLP mejora a la persistencia en 14 de las 16 combinaciones, y la ventaja crece con el horizonte: con H = 7 va de −7,7 % a 3,0 % según el lag, con H = 14 de 7,2 % a 9,2 %, con H = 21 de 9,5 % a 12,9 % y con H = 28 de 14,4 % a 17,2 %. El lag de 7 días es el mejor, o casi, en todos los horizontes: con él, el RMSE del MLP pasa de 0,0175 con H = 7 a 0,0286 con H = 28, frente a 0,0181 y 0,0346 de la persistencia. El MAPE medio es de 8,7 % (9,0 % para la persistencia), el MLP gana en el 78,8 % de los folds y solo en el primer paso del horizonte la persistencia sigue siendo ligeramente mejor (RMSE de 0,0095 frente a 0,0100–0,0131).</p>
+<p>Esto significa que la volatilidad, a diferencia del nivel, sí es predecible a partir de su propio pasado. Como es una desviación estándar móvil de 28 días, cambia lentamente y la persistencia es casi imbatible a un día, pero a varias semanas tiende a volver a su nivel medio, y el MLP aprende esa reversión a la media que la persistencia ignora (Engle &amp; Patton, 2001). Hay que tener en cuenta que una parte de esa predictibilidad es mecánica: la volatilidad de mañana comparte 27 de sus 28 retornos con la de hoy, por el solapamiento de las ventanas móviles.</p>
+<p>Por tal motivo, se opta por elegir en cada horizonte el lag de menor RMSE de validación para el modelo final, y por presentar la mejora frente a la persistencia, y no solo el error absoluto, como la medida del aporte del modelo (Hyndman &amp; Athanasopoulos, 2021).</p>
+</section>
+<section id="modelo-final-de-volatilidad-y-evaluacion-en-el-hold-out">
+<h2>6. Modelo final de volatilidad y evaluación en el hold-out<a class="headerlink" href="#modelo-final-de-volatilidad-y-evaluacion-en-el-hold-out" title="Link to this heading">#</a></h2>
+<p>Igual que en el cuaderno 3: para cada horizonte se elige el lag con menor RMSE de validación, se reentrena con toda la serie previa al hold-out durante la mediana de la mejor época de sus folds y se evalúa una sola vez en el hold-out, junto con la persistencia. Los modelos se guardan en <code class="docutils literal notranslate"><span class="pre">app/model_vol_h{H}.keras</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ho_rows</span><span class="p">,</span> <span class="n">ho_frames</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">H</span> <span class="ow">in</span> <span class="n">HORIZONS_LIST</span><span class="p">:</span>
+    <span class="n">lag</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">vol_comp</span><span class="p">[</span><span class="n">vol_comp</span><span class="o">.</span><span class="n">horizonte</span> <span class="o">==</span> <span class="n">H</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'rmse'</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'lag'</span><span class="p">])</span>
+    <span class="n">arch</span><span class="p">,</span> <span class="n">dmask</span> <span class="o">=</span> <span class="n">get_best_arch</span><span class="p">(</span><span class="n">lag</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
+    <span class="n">epocas</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">vol_folds</span><span class="p">[(</span><span class="n">vol_folds</span><span class="o">.</span><span class="n">lag</span> <span class="o">==</span> <span class="n">lag</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">vol_folds</span><span class="o">.</span><span class="n">horizonte</span> <span class="o">==</span> <span class="n">H</span><span class="p">)][</span><span class="s1">'mejor_epoca'</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()),</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">Xcv</span><span class="p">,</span> <span class="n">ycv</span> <span class="o">=</span> <span class="n">split_train_val_forwardChaining</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">serie_cv</span><span class="p">)),</span> <span class="n">numInputs</span><span class="o">=</span><span class="n">lag</span><span class="p">,</span>
+                                                    <span class="n">numOutputs</span><span class="o">=</span><span class="n">H</span><span class="p">,</span> <span class="n">numJumps</span><span class="o">=</span><span class="n">N_STEPS_JUMP</span><span class="p">)</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">Xt</span><span class="p">,</span> <span class="n">yt</span> <span class="o">=</span> <span class="n">serie_cv</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">X</span><span class="p">[</span><span class="n">u</span><span class="p">],</span> <span class="n">Xcv</span><span class="p">[</span><span class="n">u</span><span class="p">]])],</span> <span class="n">serie_cv</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">y</span><span class="p">[</span><span class="n">u</span><span class="p">],</span> <span class="n">ycv</span><span class="p">[</span><span class="n">u</span><span class="p">]])]</span>
+    <span class="n">sx</span><span class="p">,</span> <span class="n">sy</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xt</span><span class="p">),</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">yt</span><span class="p">)</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">clear_session</span><span class="p">()</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">construir_modelo</span><span class="p">(</span><span class="n">arch</span><span class="p">,</span> <span class="n">dmask</span><span class="p">,</span> <span class="n">lag</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">sx</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Xt</span><span class="p">),</span> <span class="n">sy</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">yt</span><span class="p">),</span> <span class="n">epochs</span><span class="o">=</span><span class="n">epocas</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">X_ho</span><span class="p">,</span> <span class="n">y_ho</span> <span class="o">=</span> <span class="n">ventanas_holdout</span><span class="p">(</span><span class="n">lag</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
+    <span class="n">yhat</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">model</span><span class="p">(</span><span class="n">sx</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_ho</span><span class="p">),</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+    <span class="n">m</span><span class="p">,</span> <span class="n">mp</span> <span class="o">=</span> <span class="n">metricas</span><span class="p">(</span><span class="n">y_ho</span><span class="p">,</span> <span class="n">yhat</span><span class="p">),</span> <span class="n">metricas</span><span class="p">(</span><span class="n">y_ho</span><span class="p">,</span> <span class="n">persistencia</span><span class="p">(</span><span class="n">X_ho</span><span class="p">,</span> <span class="n">H</span><span class="p">))</span>
+    <span class="n">ho_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">'horizonte'</span><span class="p">:</span> <span class="n">H</span><span class="p">,</span> <span class="s1">'lag'</span><span class="p">:</span> <span class="n">lag</span><span class="p">,</span> <span class="s1">'arquitectura'</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">arch</span><span class="p">),</span> <span class="s1">'dropout_mask'</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">dmask</span><span class="p">),</span>
+                    <span class="s1">'epocas'</span><span class="p">:</span> <span class="n">epocas</span><span class="p">,</span> <span class="s1">'n_holdout'</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_ho</span><span class="p">),</span>
+                    <span class="s1">'holdout_rmse'</span><span class="p">:</span> <span class="n">m</span><span class="p">[</span><span class="s1">'rmse'</span><span class="p">],</span> <span class="s1">'holdout_mape'</span><span class="p">:</span> <span class="n">m</span><span class="p">[</span><span class="s1">'mape'</span><span class="p">],</span> <span class="s1">'holdout_mae'</span><span class="p">:</span> <span class="n">m</span><span class="p">[</span><span class="s1">'mae'</span><span class="p">],</span>
+                    <span class="s1">'rmse_persistencia'</span><span class="p">:</span> <span class="n">mp</span><span class="p">[</span><span class="s1">'rmse'</span><span class="p">],</span> <span class="s1">'mejora_%'</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">m</span><span class="p">[</span><span class="s1">'rmse'</span><span class="p">]</span> <span class="o">/</span> <span class="n">mp</span><span class="p">[</span><span class="s1">'rmse'</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
+                    <span class="s1">'bds_pvalue_h1'</span><span class="p">:</span> <span class="n">bds_pvalue</span><span class="p">(</span><span class="n">y_ho</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">yhat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])})</span>
+    <span class="n">ho_frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'horizonte'</span><span class="p">:</span> <span class="n">H</span><span class="p">,</span> <span class="s1">'lag'</span><span class="p">:</span> <span class="n">lag</span><span class="p">,</span> <span class="s1">'fecha'</span><span class="p">:</span> <span class="n">fechas_ho</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">X_ho</span><span class="p">)],</span>
+                                   <span class="s1">'real'</span><span class="p">:</span> <span class="n">y_ho</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">'pred'</span><span class="p">:</span> <span class="n">yhat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">'persistencia'</span><span class="p">:</span> <span class="n">X_ho</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]}))</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">APP_DIR</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'model_vol_h</span><span class="si">{</span><span class="n">H</span><span class="si">}</span><span class="s1">.keras'</span><span class="p">))</span>
+    <span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="s1">'x'</span><span class="p">:</span> <span class="n">sx</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">:</span> <span class="n">sy</span><span class="p">,</span> <span class="s1">'lag'</span><span class="p">:</span> <span class="n">lag</span><span class="p">},</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">APP_DIR</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'scalers_vol_h</span><span class="si">{</span><span class="n">H</span><span class="si">}</span><span class="s1">.joblib'</span><span class="p">))</span>
+    <span class="n">registrar</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Volatilidad H=</span><span class="si">{</span><span class="n">H</span><span class="si">}</span><span class="s1"> (lag=</span><span class="si">{</span><span class="n">lag</span><span class="si">}</span><span class="s1">): RMSE hold-out=</span><span class="si">{</span><span class="n">m</span><span class="p">[</span><span class="s2">"rmse"</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1"> | persistencia=</span><span class="si">{</span><span class="n">mp</span><span class="p">[</span><span class="s2">"rmse"</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+<span class="n">vol_ho</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">ho_rows</span><span class="p">)</span>
+<span class="n">vol_ho_pred</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">ho_frames</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">vol_ho</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">RESULTS_DIR</span><span class="p">,</span> <span class="s1">'vol_holdout_evaluation.csv'</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">vol_ho_pred</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">RESULTS_DIR</span><span class="p">,</span> <span class="s1">'vol_holdout_predicciones.csv'</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">registrar</span><span class="p">(</span><span class="s1">'Fin del cuaderno 5: modelos de volatilidad guardados'</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">vol_ho</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:44:37] Volatilidad H=7 (lag=7): RMSE hold-out=0.0177 | persistencia=0.0178
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:44:41] Volatilidad H=14 (lag=7): RMSE hold-out=0.0219 | persistencia=0.0232
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:44:44] Volatilidad H=21 (lag=14): RMSE hold-out=0.0240 | persistencia=0.0275
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:44:52] Volatilidad H=28 (lag=7): RMSE hold-out=0.0260 | persistencia=0.0313
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[19:44:52] Fin del cuaderno 5: modelos de volatilidad guardados
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>horizonte</th>
+      <th>lag</th>
+      <th>arquitectura</th>
+      <th>dropout_mask</th>
+      <th>epocas</th>
+      <th>n_holdout</th>
+      <th>holdout_rmse</th>
+      <th>holdout_mape</th>
+      <th>holdout_mae</th>
+      <th>rmse_persistencia</th>
+      <th>mejora_%</th>
+      <th>bds_pvalue_h1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>7</td>
+      <td>7</td>
+      <td>(64, 256, 128)</td>
+      <td>(False, True, True)</td>
+      <td>27</td>
+      <td>243</td>
+      <td>0.0177</td>
+      <td>5.2103</td>
+      <td>0.0129</td>
+      <td>0.0178</td>
+      <td>0.1908</td>
+      <td>0.4069</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>14</td>
+      <td>7</td>
+      <td>(64, 128, 256)</td>
+      <td>(False, False, True)</td>
+      <td>17</td>
+      <td>236</td>
+      <td>0.0219</td>
+      <td>6.4051</td>
+      <td>0.0160</td>
+      <td>0.0232</td>
+      <td>5.7645</td>
+      <td>0.5457</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>21</td>
+      <td>14</td>
+      <td>(64, 128, 256)</td>
+      <td>(False, False, True)</td>
+      <td>21</td>
+      <td>229</td>
+      <td>0.0240</td>
+      <td>7.1963</td>
+      <td>0.0181</td>
+      <td>0.0275</td>
+      <td>12.5462</td>
+      <td>0.0000</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>28</td>
+      <td>7</td>
+      <td>(256, 32, 128)</td>
+      <td>(False, True, True)</td>
+      <td>70</td>
+      <td>222</td>
+      <td>0.0260</td>
+      <td>7.9392</td>
+      <td>0.0201</td>
+      <td>0.0313</td>
+      <td>16.9169</td>
+      <td>0.8357</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p><strong>Interpretación.</strong> En el hold-out los modelos finales, con lag de 7 días en H = 7, 14 y 28 y de 14 días en H = 21, obtienen un RMSE de 0,0177 a 0,0260 y un MAPE de 5,2 % a 7,9 %. Frente a la persistencia, la mejora es prácticamente nula con H = 7 (0,2 %) y crece a 5,8 % con H = 14, 12,5 % con H = 21 y 16,9 % con H = 28, el mismo patrón de la validación. La prueba BDS no rechaza la independencia de los residuos del primer paso con H = 7, 14 y 28 (p-valores de 0,41, 0,55 y 0,84), pero sí con H = 21 (p-valor inferior a 0,0001).</p>
+<p>Lo anterior indica que el modelo de volatilidad generaliza: la ventaja sobre la persistencia observada en validación se reproduce en datos que nunca intervinieron en el entrenamiento ni en la selección. El rechazo de la BDS con H = 21, el único modelo con lag de 14 días, señala que en ese horizonte queda estructura sin capturar, aunque su error es coherente con el de los demás horizontes.</p>
+<p>En consecuencia, se decide guardar los cuatro modelos de volatilidad en <code class="docutils literal notranslate"><span class="pre">app/</span></code> (<code class="docutils literal notranslate"><span class="pre">model_vol_h{H}.keras</span></code>) como complemento del modelo de nivel, con la recomendación de usarlos sobre todo en horizontes de 14 a 28 días, donde aportan frente a la persistencia.</p>
+<section id="volatilidad-real-y-predicha-en-el-hold-out">
+<h3>6.1 Volatilidad real y predicha en el hold-out<a class="headerlink" href="#volatilidad-real-y-predicha-en-el-hold-out" title="Link to this heading">#</a></h3>
+<p>Primer paso del horizonte (<span class="math notranslate nohighlight">\(h = 1\)</span>) para el modelo final de cada H, junto con la persistencia.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mf">6.5</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">H</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">HORIZONS_LIST</span><span class="p">):</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">vol_ho_pred</span><span class="p">[</span><span class="n">vol_ho_pred</span><span class="o">.</span><span class="n">horizonte</span> <span class="o">==</span> <span class="n">H</span><span class="p">]</span>
+    <span class="n">fila</span> <span class="o">=</span> <span class="n">vol_ho</span><span class="p">[</span><span class="n">vol_ho</span><span class="o">.</span><span class="n">horizonte</span> <span class="o">==</span> <span class="n">H</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">fecha</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Real'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">fecha</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">pred</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'MLP'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">fecha</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">persistencia</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">':'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Persistencia'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">'H=</span><span class="si">{</span><span class="n">H</span><span class="si">}</span><span class="s1">, lag=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">fila</span><span class="o">.</span><span class="n">lag</span><span class="p">)</span><span class="si">}</span><span class="s1"> — RMSE MLP=</span><span class="si">{</span><span class="n">fila</span><span class="o">.</span><span class="n">holdout_rmse</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">, persistencia=</span><span class="si">{</span><span class="n">fila</span><span class="o">.</span><span class="n">rmse_persistencia</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+                 <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'σ (28 días)'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">labelrotation</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">'Volatilidad en el hold-out (h=1)'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FIGS_DIR</span><span class="p">,</span> <span class="s1">'vol_holdout_real_vs_pred.png'</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/c3345766796a8f965b550500b411a5bac748581d2d46883cfd3738d325d4e7cc.png" src="../_images/c3345766796a8f965b550500b411a5bac748581d2d46883cfd3738d325d4e7cc.png" />
+</div>
+</div>
+<p><strong>Interpretación.</strong> En el hold-out la volatilidad real va de 0,171 a 0,322, y el MLP la sigue de cerca en los cuatro horizontes: la correlación entre lo predicho y lo real en el primer paso va de 0,86 (H = 28) a 0,92 (H = 14), y la desviación estándar de lo predicho es entre el 83 % y el 97 % de la real. A diferencia del modelo de nivel, aquí las predicciones no se aplanan hacia la media, y la persistencia, por construcción, reproduce la serie con un día de retraso.</p>
+<p>Así mismo, como la figura muestra solo el primer paso, donde la persistencia es muy competitiva, la ventaja del MLP no se aprecia aquí sino en los pasos lejanos del horizonte (sección 5): su valor está en anticipar hacia dónde se moverá la volatilidad en las semanas siguientes, no en el dato de mañana.</p>
+<p>Por ello, se recomienda acompañar esta figura con el RMSE por paso de horizonte al presentar los resultados, y usar el modelo de volatilidad como insumo para la gestión de la incertidumbre del pronóstico de nivel, por ejemplo para ampliar o estrechar los intervalos según la volatilidad esperada.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="conclusiones">
+<h2>7. Conclusiones<a class="headerlink" href="#conclusiones" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>La volatilidad histórica, la desviación estándar móvil de 28 días de los retornos logarítmicos, se modeló con el mismo protocolo del nivel: Forward Chaining de <code class="docutils literal notranslate"><span class="pre">timeseries-cv</span></code> agrupado en cinco folds con purga, escaladores ajustados solo con el entrenamiento y hold-out del último 10 %.</p></li>
+<li><p>A diferencia del nivel, la volatilidad es predecible y el MLP aporta: en el hold-out reduce el RMSE de la persistencia en 5,8 %, 12,5 % y 16,9 % con H = 14, 21 y 28, y empata con ella con H = 7.</p></li>
+<li><p>La ventaja crece con el horizonte porque el MLP aprende la reversión de la volatilidad a su nivel medio. A un día, la persistencia sigue siendo casi imbatible por el solapamiento de las ventanas móviles.</p></li>
+<li><p>Las arquitecturas se reutilizaron del cuaderno 2, sin una búsqueda específica para la volatilidad; una búsqueda propia podría mejorar el resultado y queda como trabajo futuro.</p></li>
+<li><p>Con este cuaderno el proyecto cubre los dos objetivos del enunciado: la predicción del nivel de la serie (cuadernos 2 a 4) y la modelación de su variabilidad.</p></li>
+</ol>
+</section>
+<section id="referencias">
+<h2>Referencias<a class="headerlink" href="#referencias" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Engle, R. F., &amp; Patton, A. J. (2001). What good is a volatility model? <em>Quantitative Finance</em>, 1(2), 237–245.</p></li>
+<li><p>Hyndman, R. J., &amp; Athanasopoulos, G. (2021). <em>Forecasting: Principles and Practice</em> (3.ª ed.). OTexts.</p></li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./notebooks"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="4_residual_analysis.html"
+       title="página anterior">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">anterior</p>
+        <p class="prev-next-title">Diagnóstico de Residuos</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contenido
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduccion">1. Introducción</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datos-parametros-y-arquitecturas">2. Datos, parámetros y arquitecturas</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#funciones-auxiliares">3. Funciones auxiliares</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validacion-cruzada-forward-chaining-5-folds">4. Validación cruzada (Forward Chaining, 5 folds)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mlp-frente-a-persistencia-en-validacion">5. MLP frente a persistencia en validación</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modelo-final-de-volatilidad-y-evaluacion-en-el-hold-out">6. Modelo final de volatilidad y evaluación en el hold-out</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#volatilidad-real-y-predicha-en-el-hold-out">6.1 Volatilidad real y predicha en el hold-out</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusiones">7. Conclusiones</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#referencias">Referencias</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+Por Deep Learning · 3er Semestre · Universidad del Norte
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

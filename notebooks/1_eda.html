@@ -1,0 +1,1116 @@
+
+<!DOCTYPE html>
+
+
+<html lang="es" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Análisis Exploratorio de Datos — Velocidad del Viento INMET &#8212; Proyecto Integrador — Predicción de Velocidad del Viento con MLP</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=78d55cf8"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>let toggleHintShow = 'Haz clic para mostrar';</script>
+    <script>let toggleHintHide = 'Haz clic para ocultar';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=b8b12719"></script>
+    <script src="../_static/translations.js?v=d190bf04"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/1_eda';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Índice" href="../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../search.html" />
+    <link rel="next" title="Búsqueda de la Mejor Arquitectura MLP" href="2_architecture_search.html" />
+    <link rel="prev" title="Predicción de Velocidad del Viento con MLP y MLOps" href="../intro.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="es"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Saltar al contenido principal</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Volver arriba</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Advertencia de versión"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Navegación del sitio">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Búsqueda</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Búsqueda</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="En esta página">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Proyecto Integrador — Predicción de Velocidad del Viento con MLP</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Búsqueda</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../intro.html">
+                    Predicción de Velocidad del Viento con MLP y MLOps
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">1. Análisis Exploratorio de Datos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_architecture_search.html">2. Búsqueda de Arquitectura MLP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_model_training.html">3. Entrenamiento y Evaluación</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_residual_analysis.html">4. Análisis de Residuos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_volatility_model.html">5. Modelo de Volatilidad</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/DTL-DA/Proyecto-Integrador-Deep-Learning-time-series-mlops" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Repositorio de origen"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Descarga esta pagina">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/notebooks/1_eda.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Descargar archivo fuente"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Imprimir en PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Modo de pantalla completa"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Tema" data-bs-title="Tema"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Claro"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Oscuro"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="Sistema"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Análisis Exploratorio de Datos — Velocidad del Viento INMET</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contenido </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduccion">1. Introducción</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#importar-librerias">2. Importar librerías</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#carga-y-preparacion-de-datos">3. Carga y preparación de datos</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#estadisticas-descriptivas">4. Estadísticas descriptivas</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualizaciones-de-la-serie">5. Visualizaciones de la serie</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#serie-temporal-de-velocidad-del-viento">5.1 Serie temporal de velocidad del viento</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#retornos-logaritmicos">5.2 Retornos logarítmicos</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#volatilidad-historica-rolling-std">5.3 Volatilidad histórica (rolling std)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#autocorrelacion-y-diagnostico-de-heterocedasticidad">6. Autocorrelación y diagnóstico de heterocedasticidad</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#acf-de-la-serie-en-niveles">6.1 ACF de la serie en niveles</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#acf-de-los-cuadrados-diagnostico-de-heterocedasticidad">6.2 ACF de los cuadrados (diagnóstico de heterocedasticidad)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prueba-de-raiz-unitaria-augmented-dickeyfuller">7. Prueba de raíz unitaria (Augmented Dickey–Fuller)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#guardar-dataset-procesado">8. Guardar dataset procesado</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#resumen-y-conclusiones">9. Resumen y conclusiones</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#referencias">Referencias</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="analisis-exploratorio-de-datos-velocidad-del-viento-inmet">
+<h1>Análisis Exploratorio de Datos — Velocidad del Viento INMET<a class="headerlink" href="#analisis-exploratorio-de-datos-velocidad-del-viento-inmet" title="Link to this heading">#</a></h1>
+<p><strong>Proyecto Integrador · Aprendizaje Profundo</strong><br />
+Estación A001 — Brasília, DF · 2000–2026</p>
+<hr class="docutils" />
+<section id="introduccion">
+<h2>1. Introducción<a class="headerlink" href="#introduccion" title="Link to this heading">#</a></h2>
+<p>La predicción de la velocidad del viento constituye un problema de pronóstico de series temporales con alta relevancia práctica: impacta directamente la planificación de sistemas de generación eólica, la optimización operativa de aeropuertos y la gestión de incertidumbre en mercados de energía renovable. A diferencia de señales relativamente estacionarias, la velocidad del viento exhibe <strong>alta variabilidad</strong>, <strong>no linealidad</strong> y <strong>dependencia temporal compleja</strong>, características que la hacen un banco de prueba exigente para modelos de aprendizaje profundo.</p>
+<p>El presente cuaderno cubre tres objetivos:</p>
+<ol class="arabic simple">
+<li><p>Descargar y preparar los datos horarios del Instituto Nacional de Meteorología de Brasil (INMET), agregándolos a resolución diaria.</p></li>
+<li><p>Realizar un análisis exploratorio completo: estadísticas descriptivas, retornos logarítmicos, volatilidad histórica, autocorrelación y diagnóstico de heterocedasticidad.</p></li>
+<li><p>Generar y guardar el dataset procesado <code class="docutils literal notranslate"><span class="pre">data/dataset.csv</span></code>, que alimentará los cuadernos posteriores.</p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="importar-librerias">
+<h2>2. Importar librerías<a class="headerlink" href="#importar-librerias" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">'ignore'</span><span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.ticker</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mticker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">stats</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.graphics.tsaplots</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_acf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.tsa.stattools</span><span class="w"> </span><span class="kn">import</span> <span class="n">adfuller</span>
+
+<span class="c1"># Configuración de estilo: escala de grises para entregables académicos</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+    <span class="s1">'figure.dpi'</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>
+    <span class="s1">'axes.prop_cycle'</span><span class="p">:</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">cycler</span><span class="p">(</span><span class="s1">'color'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'#000000'</span><span class="p">,</span><span class="s1">'#444444'</span><span class="p">,</span><span class="s1">'#888888'</span><span class="p">,</span><span class="s1">'#bbbbbb'</span><span class="p">]),</span>
+    <span class="s1">'axes.grid'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s1">'grid.alpha'</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+    <span class="s1">'font.size'</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="s1">'axes.titlesize'</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+    <span class="s1">'axes.labelsize'</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="n">FIGS_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">'figs'</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">FIGS_DIR</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Librerías cargadas correctamente.'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Directorio de figuras: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">FIGS_DIR</span><span class="p">,</span><span class="w"> </span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()))</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Librerías cargadas correctamente.
+Directorio de figuras: notebooks\figs
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="carga-y-preparacion-de-datos">
+<h2>3. Carga y preparación de datos<a class="headerlink" href="#carga-y-preparacion-de-datos" title="Link to this heading">#</a></h2>
+<p>Los datos provienen del portal histórico del INMET (<a class="reference external" href="https://portal.inmet.gov.br/dadoshistoricos">https://portal.inmet.gov.br/dadoshistoricos</a>). Cada año se distribuye como un archivo ZIP que contiene CSVs separados por estación. Para la estación <strong>A001 (Brasília, DF)</strong> se descargan los años 2000 a 2026.</p>
+<p>El formato nativo del INMET tiene resolución horaria, con el separador <code class="docutils literal notranslate"><span class="pre">;</span></code> y el decimal <code class="docutils literal notranslate"><span class="pre">,</span></code>. La variable objetivo es la columna <strong><code class="docutils literal notranslate"><span class="pre">VENTO,</span> <span class="pre">VELOCIDADE</span> <span class="pre">HORARIA</span> <span class="pre">(m/s)</span></code></strong>, que registra la velocidad instantánea del viento medida cada hora. Los valores iguales a −9999 representan datos faltantes y son reemplazados por <code class="docutils literal notranslate"><span class="pre">NaN</span></code>.</p>
+<p>Dado que los horizontes de predicción requeridos son 7, 14, 21 y 28 <strong>días</strong>, la serie horaria se agrega a <strong>media diaria</strong> (<code class="docutils literal notranslate"><span class="pre">resample('D').mean()</span></code>), que captura la tendencia del régimen eólico sin el ruido de alta frecuencia intrahora.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># --- Ruta al script de descarga ---</span>
+<span class="n">DATA_DIR</span>   <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()),</span> <span class="s1">'data'</span><span class="p">)</span>
+<span class="n">DATASET_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_DIR</span><span class="p">,</span> <span class="s1">'dataset.csv'</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">DATASET_PATH</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'Descargando datos del INMET (puede tardar varios minutos)...'</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">DATA_DIR</span><span class="p">)</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">download_data</span>
+    <span class="n">download_data</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Dataset encontrado: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">DATASET_PATH</span><span class="p">,</span><span class="w"> </span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()))</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">DATASET_PATH</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="p">[</span><span class="s1">'date'</span><span class="p">])</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'date'</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="se">\n</span><span class="s1">Período: </span><span class="si">{</span><span class="n">df</span><span class="p">[</span><span class="s2">"date"</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s1"> → </span><span class="si">{</span><span class="n">df</span><span class="p">[</span><span class="s2">"date"</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Observaciones: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Faltantes: </span><span class="si">{</span><span class="n">df</span><span class="p">[</span><span class="s2">"wind_speed"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">df</span><span class="p">[</span><span class="s2">"wind_speed"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">%)'</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Dataset encontrado: data\dataset.csv
+
+Período: 2000-05-07 → 2026-10-31
+Observaciones: 9578
+Faltantes: 0 (0.0%)
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>date</th>
+      <th>wind_speed</th>
+      <th>log_return</th>
+      <th>volatility</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2000-05-07</td>
+      <td>1.766667</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2000-05-08</td>
+      <td>2.066667</td>
+      <td>0.156842</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2000-05-09</td>
+      <td>1.150000</td>
+      <td>-0.586175</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2000-05-10</td>
+      <td>2.008333</td>
+      <td>0.557543</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2000-05-11</td>
+      <td>2.670833</td>
+      <td>0.285085</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>2000-05-12</td>
+      <td>2.995833</td>
+      <td>0.114832</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>2000-05-13</td>
+      <td>3.120833</td>
+      <td>0.040878</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>2000-05-14</td>
+      <td>3.133333</td>
+      <td>0.003997</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>2000-05-15</td>
+      <td>1.900000</td>
+      <td>-0.500244</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>2000-05-16</td>
+      <td>1.691667</td>
+      <td>-0.116140</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Imputación lineal de faltantes (&lt; 3 % en datos INMET bien mantenidos)</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">'wind_speed'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'wind_speed'</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">'linear'</span><span class="p">,</span> <span class="n">limit_direction</span><span class="o">=</span><span class="s1">'both'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Faltantes tras imputación: </span><span class="si">{</span><span class="n">df</span><span class="p">[</span><span class="s2">"wind_speed"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Faltantes tras imputación: 0
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="estadisticas-descriptivas">
+<h2>4. Estadísticas descriptivas<a class="headerlink" href="#estadisticas-descriptivas" title="Link to this heading">#</a></h2>
+<p>La tabla siguiente resume los principales momentos estadísticos de la velocidad del viento diaria. Interesa especialmente la <strong>asimetría</strong> (<em>skewness</em>) y el <strong>exceso de curtosis</strong> (<em>kurtosis</em>), que informan sobre la forma de la distribución y la presencia de valores extremos.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ws</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'wind_speed'</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+<span class="n">desc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">'Métrica'</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s1">'N (días)'</span><span class="p">,</span> <span class="s1">'Media (m/s)'</span><span class="p">,</span> <span class="s1">'Mediana (m/s)'</span><span class="p">,</span> <span class="s1">'Desv. estándar (m/s)'</span><span class="p">,</span>
+        <span class="s1">'Mínimo (m/s)'</span><span class="p">,</span> <span class="s1">'Máximo (m/s)'</span><span class="p">,</span> <span class="s1">'P25 (m/s)'</span><span class="p">,</span> <span class="s1">'P75 (m/s)'</span><span class="p">,</span>
+        <span class="s1">'Asimetría'</span><span class="p">,</span> <span class="s1">'Curtosis exceso'</span>
+    <span class="p">],</span>
+    <span class="s1">'Valor'</span><span class="p">:</span> <span class="p">[</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">ws</span><span class="p">),</span>
+        <span class="nb">round</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="nb">round</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="nb">round</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">std</span><span class="p">(),</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="nb">round</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="nb">round</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="nb">round</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.25</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="nb">round</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.75</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="nb">round</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">skew</span><span class="p">(</span><span class="n">ws</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="nb">round</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">kurtosis</span><span class="p">(</span><span class="n">ws</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">desc</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>             Métrica     Valor
+            N (días) 9578.0000
+         Media (m/s)    2.3368
+       Mediana (m/s)    2.2250
+Desv. estándar (m/s)    0.7071
+        Mínimo (m/s)    0.0000
+        Máximo (m/s)    5.4042
+           P25 (m/s)    1.8083
+           P75 (m/s)    2.7708
+           Asimetría    0.7294
+     Curtosis exceso    0.3875
+</pre></div>
+</div>
+</div>
+</div>
+<p><strong>Interpretación.</strong> La distribución de la velocidad del viento diaria en Brasília muestra asimetría positiva moderada, lo que implica que episodios de viento intenso (cola derecha) son más frecuentes que lo esperado bajo normalidad. El exceso de curtosis positivo confirma colas más pesadas que la gaussiana. Consecuentemente, la variabilidad no es homogénea a lo largo del tiempo, indicio preliminar de heterocedasticidad que el test ACF de cuadrados corroborará más adelante.</p>
+</section>
+<section id="visualizaciones-de-la-serie">
+<h2>5. Visualizaciones de la serie<a class="headerlink" href="#visualizaciones-de-la-serie" title="Link to this heading">#</a></h2>
+<section id="serie-temporal-de-velocidad-del-viento">
+<h3>5.1 Serie temporal de velocidad del viento<a class="headerlink" href="#serie-temporal-de-velocidad-del-viento" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'date'</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s1">'wind_speed'</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Velocidad (m/s)'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Fecha'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Velocidad del viento (m/s)'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Serie temporal — Velocidad del viento diaria · Brasília A001 (2000–2026)'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FIGS_DIR</span><span class="p">,</span> <span class="s1">'eda_serie_temporal.png'</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/c5f481fe829d50ae994cedd8fbd26f26025336d4b02cc7468693912baa657cb8.png" src="../_images/c5f481fe829d50ae994cedd8fbd26f26025336d4b02cc7468693912baa657cb8.png" />
+</div>
+</div>
+<p><strong>Interpretación.</strong> La serie exhibe variabilidad notable sin una tendencia creciente o decreciente pronunciada, sugiriendo un proceso aproximadamente estacionario en media. Se distinguen patrones estacionales anuales: en Brasília el período seco (mayo–septiembre) suele registrar vientos más intensos que la estación lluviosa (octubre–marzo), patrón derivado de la dinámica de la Alta Subtropical del Atlántico Sur. Las excursiones bruscas de alta velocidad corresponden a frentes fríos que ingresan desde el sur del continente.</p>
+</section>
+<section id="retornos-logaritmicos">
+<h3>5.2 Retornos logarítmicos<a class="headerlink" href="#retornos-logaritmicos" title="Link to this heading">#</a></h3>
+<p>El retorno logarítmico diario se define como:</p>
+<div class="math notranslate nohighlight">
+\[r_t = \ln\!\left(\frac{v_t}{v_{t-1}}\right)\]</div>
+<p>donde <span class="math notranslate nohighlight">\(v_t\)</span> es la velocidad media del día <span class="math notranslate nohighlight">\(t\)</span>. Esta transformación tiene la ventaja de estabilizar la varianza e interpretar la variación relativa en escala logarítmica, análoga a su uso en finanzas para retornos de precios.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s1">'log_return'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'wind_speed'</span><span class="p">]</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="s1">'wind_speed'</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="c1"># Reemplazar -inf/inf (días con viento = 0) por NaN</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'log_return'</span><span class="p">]),</span> <span class="s1">'log_return'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="n">lr</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'log_return'</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">))</span>
+
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'date'</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">df</span><span class="p">[</span><span class="s1">'log_return'</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">'--'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Retornos logarítmicos diarios'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Fecha'</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'$r_t$'</span><span class="p">)</span>
+
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">lr</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">xgrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">lr</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">lr</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xgrid</span><span class="p">,</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">xgrid</span><span class="p">,</span> <span class="n">lr</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">lr</span><span class="o">.</span><span class="n">std</span><span class="p">()),</span>
+             <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Normal'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Histograma de retornos logarítmicos'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'$r_t$'</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Densidad'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FIGS_DIR</span><span class="p">,</span> <span class="s1">'eda_retornos.png'</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Media retornos: </span><span class="si">{</span><span class="n">lr</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1"> | Desv. est.: </span><span class="si">{</span><span class="n">lr</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Asimetría: </span><span class="si">{</span><span class="n">stats</span><span class="o">.</span><span class="n">skew</span><span class="p">(</span><span class="n">lr</span><span class="p">)</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1"> | Curtosis exceso: </span><span class="si">{</span><span class="n">stats</span><span class="o">.</span><span class="n">kurtosis</span><span class="p">(</span><span class="n">lr</span><span class="p">)</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Retornos descartados por inf: </span><span class="si">{</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"log_return"</span><span class="p">]))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/9530e3afb68490306b16fa4e8c34533deed6deb8caf8422f50d45abf37f3f3cc.png" src="../_images/9530e3afb68490306b16fa4e8c34533deed6deb8caf8422f50d45abf37f3f3cc.png" />
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Media retornos: -0.0001 | Desv. est.: 0.2672
+Asimetría: -0.0332 | Curtosis exceso: 2.0356
+Retornos descartados por inf: 2
+</pre></div>
+</div>
+</div>
+</div>
+<p><strong>Interpretación.</strong> Los retornos logarítmicos oscilan en torno a cero con episodios de volatilidad agrupada, fenómeno conocido como <em>clustering</em> de volatilidad. El histograma muestra colas más pesadas que la distribución normal de referencia (línea discontinua), confirmado por el exceso de curtosis positivo. Esta característica implica que un modelo de predicción debe capturar dependencias no lineales en la serie de retornos, no únicamente en los niveles.</p>
+</section>
+<section id="volatilidad-historica-rolling-std">
+<h3>5.3 Volatilidad histórica (rolling std)<a class="headerlink" href="#volatilidad-historica-rolling-std" title="Link to this heading">#</a></h3>
+<p>La volatilidad histórica realizada en ventana de <span class="math notranslate nohighlight">\(n\)</span> días se calcula como:</p>
+<div class="math notranslate nohighlight">
+\[\sigma_t = \sqrt{\frac{1}{n}\sum_{i=1}^{n}\left(r_{t-i} - \bar{r}\right)^2}\]</div>
+<p>Se utiliza una ventana deslizante de <strong>28 días</strong> como proxy de la variabilidad local.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">WINDOW</span> <span class="o">=</span> <span class="mi">28</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">'volatility'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'log_return'</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">WINDOW</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'date'</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s1">'volatility'</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'Volatilidad (</span><span class="si">{</span><span class="n">WINDOW</span><span class="si">}</span><span class="s1">d)'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'date'</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="s1">'volatility'</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Volatilidad histórica (rolling std 28 días) — Retornos logarítmicos'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Fecha'</span><span class="p">);</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'$</span><span class="se">\\</span><span class="s1">sigma_t$'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FIGS_DIR</span><span class="p">,</span> <span class="s1">'eda_volatilidad.png'</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/12b1b38c7025c36164f72e9435fd776eb82bc469d202cca480ee89bf9b3bcb87.png" src="../_images/12b1b38c7025c36164f72e9435fd776eb82bc469d202cca480ee89bf9b3bcb87.png" />
+</div>
+</div>
+<p><strong>Interpretación.</strong> La volatilidad no es constante: presenta regímenes de alta y baja variabilidad que se suceden en bloques temporales, coherente con la estacionalidad climática. Los picos de volatilidad tienden a concentrarse en el período de transición entre estaciones (abril–mayo y septiembre–octubre), cuando el contraste térmico entre masas de aire tropicales y polares es mayor. Este patrón heteroscedástico justifica el uso de ventanas de entrada de tamaños distintos (7, 14, 21, 28 días) para capturar dependencias en diferentes escalas temporales.</p>
+</section>
+</section>
+<section id="autocorrelacion-y-diagnostico-de-heterocedasticidad">
+<h2>6. Autocorrelación y diagnóstico de heterocedasticidad<a class="headerlink" href="#autocorrelacion-y-diagnostico-de-heterocedasticidad" title="Link to this heading">#</a></h2>
+<section id="acf-de-la-serie-en-niveles">
+<h3>6.1 ACF de la serie en niveles<a class="headerlink" href="#acf-de-la-serie-en-niveles" title="Link to this heading">#</a></h3>
+<p>La función de autocorrelación (ACF) mide la correlación lineal de la serie consigo misma desplazada <span class="math notranslate nohighlight">\(k\)</span> pasos:</p>
+<div class="math notranslate nohighlight">
+\[\rho_k = \frac{\text{Cov}(v_t, v_{t-k})}{\text{Var}(v_t)}\]</div>
+<p>Las bandas de confianza al 95 % se calculan como <span class="math notranslate nohighlight">\(\pm 1.96/\sqrt{T}\)</span>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">))</span>
+
+<span class="n">plot_acf</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'wind_speed'</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(),</span> <span class="n">lags</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+         <span class="n">title</span><span class="o">=</span><span class="s1">'ACF — Velocidad del viento (niveles)'</span><span class="p">,</span> <span class="n">zero</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+         <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Lag (días)'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'black'</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+    <span class="n">line</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'black'</span><span class="p">)</span>
+
+<span class="n">plot_acf</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'log_return'</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(),</span> <span class="n">lags</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+         <span class="n">title</span><span class="o">=</span><span class="s1">'ACF — Retornos logarítmicos'</span><span class="p">,</span> <span class="n">zero</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+         <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Lag (días)'</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+    <span class="n">line</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'black'</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FIGS_DIR</span><span class="p">,</span> <span class="s1">'eda_acf_niveles_retornos.png'</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/29258b7ce3ac8fcf93ada53236f62503147edb0e887822df3d114275a55953db.png" src="../_images/29258b7ce3ac8fcf93ada53236f62503147edb0e887822df3d114275a55953db.png" />
+</div>
+</div>
+<p><strong>Interpretación.</strong> La ACF de los niveles decae lentamente, con correlaciones significativas hasta 20–30 días. Esto confirma memoria a corto y mediano plazo en la serie, siendo precisamente el intervalo que abarca el espacio de lags propuesto (7–28 días). La ACF de los retornos logarítmicos presenta correlaciones estadísticamente insignificantes en la mayoría de los lags, indicando que las variaciones relativas son prácticamente no autocorrelacionadas en media — un comportamiento similar al de un proceso de diferencias estocásticas.</p>
+</section>
+<section id="acf-de-los-cuadrados-diagnostico-de-heterocedasticidad">
+<h3>6.2 ACF de los cuadrados (diagnóstico de heterocedasticidad)<a class="headerlink" href="#acf-de-los-cuadrados-diagnostico-de-heterocedasticidad" title="Link to this heading">#</a></h3>
+<p>La autocorrelación significativa de <span class="math notranslate nohighlight">\(r_t^2\)</span> es la prueba gráfica canónica de heterocedasticidad condicional (<em>efectos ARCH/GARCH</em>). Si <span class="math notranslate nohighlight">\(r_t^2\)</span> está correlacionado serialmente, la varianza del proceso no es constante y el modelo debe incorporar dependencia en la volatilidad.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">))</span>
+<span class="n">lr_sq</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'log_return'</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="n">plot_acf</span><span class="p">(</span><span class="n">lr_sq</span><span class="p">,</span> <span class="n">lags</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+         <span class="n">title</span><span class="o">=</span><span class="s1">'ACF de cuadrados de retornos — Diagnóstico de heterocedasticidad'</span><span class="p">,</span>
+         <span class="n">zero</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Lag (días)'</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+    <span class="n">line</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'black'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FIGS_DIR</span><span class="p">,</span> <span class="s1">'eda_acf_cuadrados.png'</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/2df3b6ca3485e6267acb4c99c05a7cd8fa4cfdb5aa17cd083f774fe6de2f7be7.png" src="../_images/2df3b6ca3485e6267acb4c99c05a7cd8fa4cfdb5aa17cd083f774fe6de2f7be7.png" />
+</div>
+</div>
+<p><strong>Interpretación.</strong> La ACF de los cuadrados revela autocorrelaciones positivas y significativas en múltiples lags, evidencia robusta de heterocedasticidad condicional. La volatilidad del viento en Brasília no es independiente: los días de alta variabilidad tienden a agruparse temporalmente. Esta propiedad refuerza la motivación para modelar la predicción con una arquitectura que procese ventanas históricas de tamaños variables, ya que el contexto de los últimos 7, 14, 21 o 28 días contiene información predictiva diferencial sobre el régimen de variabilidad futuro.</p>
+</section>
+</section>
+<section id="prueba-de-raiz-unitaria-augmented-dickeyfuller">
+<h2>7. Prueba de raíz unitaria (Augmented Dickey–Fuller)<a class="headerlink" href="#prueba-de-raiz-unitaria-augmented-dickeyfuller" title="Link to this heading">#</a></h2>
+<p>Para confirmar la estacionariedad de la serie en niveles — condición conveniente para el modelado con lags — se aplica el test ADF con el criterio de información AIC para seleccionar el número de retardos.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">adf_res</span> <span class="o">=</span> <span class="n">adfuller</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'wind_speed'</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(),</span> <span class="n">autolag</span><span class="o">=</span><span class="s1">'AIC'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'=== Augmented Dickey–Fuller ==='</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Estadístico ADF : </span><span class="si">{</span><span class="n">adf_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'p-valor         : </span><span class="si">{</span><span class="n">adf_res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">adf_res</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  Valor crítico </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">val</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">adf_res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">Conclusión: se rechaza H0 (raíz unitaria) → la serie es estacionaria (p &lt; 0.05).'</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">Conclusión: no se rechaza H0 → se recomienda diferenciar la serie.'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>=== Augmented Dickey–Fuller ===
+Estadístico ADF : -9.7696
+p-valor         : 0.0000
+  Valor crítico 1%: -3.4310
+  Valor crítico 5%: -2.8618
+  Valor crítico 10%: -2.5669
+
+Conclusión: se rechaza H0 (raíz unitaria) → la serie es estacionaria (p &lt; 0.05).
+</pre></div>
+</div>
+</div>
+</div>
+<p><strong>Interpretación.</strong> Si el p-valor es inferior a 0,05 se rechaza la hipótesis nula de raíz unitaria y se concluye que la serie es estacionaria en media, lo que permite utilizar los valores en niveles directamente como entradas al modelo MLP sin necesidad de diferenciación. De lo contrario, los retornos logarítmicos (ya calculados) constituyen la variable objetivo alternativa con garantía de estacionariedad.</p>
+</section>
+<section id="guardar-dataset-procesado">
+<h2>8. Guardar dataset procesado<a class="headerlink" href="#guardar-dataset-procesado" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Guardar la serie limpia e imputada como dataset.csv definitivo</span>
+<span class="n">df</span><span class="p">[[</span><span class="s1">'date'</span><span class="p">,</span><span class="s1">'wind_speed'</span><span class="p">,</span><span class="s1">'log_return'</span><span class="p">,</span><span class="s1">'volatility'</span><span class="p">]]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">DATASET_PATH</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Dataset guardado en </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">DATASET_PATH</span><span class="p">,</span><span class="w"> </span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()))</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Columnas: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Shape: </span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[[</span><span class="s1">'date'</span><span class="p">,</span><span class="s1">'wind_speed'</span><span class="p">,</span><span class="s1">'log_return'</span><span class="p">]]</span><span class="o">.</span><span class="n">tail</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Dataset guardado en data\dataset.csv
+Columnas: ['date', 'wind_speed', 'log_return', 'volatility']
+Shape: (9578, 4)
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>date</th>
+      <th>wind_speed</th>
+      <th>log_return</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>9573</th>
+      <td>2026-10-27</td>
+      <td>1.762500</td>
+      <td>0.109836</td>
+    </tr>
+    <tr>
+      <th>9574</th>
+      <td>2026-10-28</td>
+      <td>2.416667</td>
+      <td>0.315656</td>
+    </tr>
+    <tr>
+      <th>9575</th>
+      <td>2026-10-29</td>
+      <td>1.408333</td>
+      <td>-0.539982</td>
+    </tr>
+    <tr>
+      <th>9576</th>
+      <td>2026-10-30</td>
+      <td>1.912500</td>
+      <td>0.306004</td>
+    </tr>
+    <tr>
+      <th>9577</th>
+      <td>2026-10-31</td>
+      <td>1.983333</td>
+      <td>0.036368</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="resumen-y-conclusiones">
+<h2>9. Resumen y conclusiones<a class="headerlink" href="#resumen-y-conclusiones" title="Link to this heading">#</a></h2>
+<p>El análisis exploratorio sobre la serie diaria de velocidad del viento en la estación A001 (Brasília, DF) para el período 2000–2026 permite extraer las siguientes conclusiones:</p>
+<ol class="arabic simple">
+<li><p><strong>Estacionariedad en media</strong>: el test ADF confirma que la serie en niveles es estacionaria, lo que permite usarla directamente como variable objetivo en el modelo MLP.</p></li>
+<li><p><strong>Dependencia temporal relevante</strong>: la ACF muestra correlaciones significativas hasta 20–30 días, validando el uso de ventanas de entrada (lags) de 7, 14, 21 y 28 días como features del modelo.</p></li>
+<li><p><strong>Heterocedasticidad condicional</strong>: la ACF de los cuadrados evidencia clustering de volatilidad, señal de que el contexto histórico no sólo informa sobre el nivel futuro sino también sobre su variabilidad.</p></li>
+<li><p><strong>Distribución no gaussiana</strong>: la asimetría positiva y la curtosis elevada de los retornos indican la presencia de eventos extremos que el modelo debe aprender a gestionar mediante entrenamiento con suficientes datos y regularización (dropout).</p></li>
+</ol>
+<p>Estos hallazgos motivan directamente el diseño experimental del cuaderno 2 (búsqueda de arquitectura) y el cuaderno 3 (entrenamiento con validación cruzada temporal).</p>
+</section>
+<hr class="docutils" />
+<section id="referencias">
+<h2>Referencias<a class="headerlink" href="#referencias" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>INMET. <em>Dados Históricos</em>. Instituto Nacional de Meteorologia, Brasil. Disponible en: <a class="reference external" href="https://portal.inmet.gov.br/dadoshistoricos">https://portal.inmet.gov.br/dadoshistoricos</a></p></li>
+<li><p>Hyndman, R. J., &amp; Athanasopoulos, G. (2021). <em>Forecasting: Principles and Practice</em> (3.ª ed.). OTexts.</p></li>
+<li><p>Box, G. E. P., &amp; Pierce, D. A. (1970). Distribution of residual autocorrelations in autoregressive-integrated moving average time series models. <em>Journal of the American Statistical Association</em>, 65(332), 1509–1526.</p></li>
+<li><p>Engle, R. F. (1982). Autoregressive conditional heteroscedasticity with estimates of the variance of United Kingdom inflation. <em>Econometrica</em>, 50(4), 987–1007.</p></li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./notebooks"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../intro.html"
+       title="página anterior">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">anterior</p>
+        <p class="prev-next-title">Predicción de Velocidad del Viento con MLP y MLOps</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="2_architecture_search.html"
+       title="siguiente página">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">siguiente</p>
+        <p class="prev-next-title">Búsqueda de la Mejor Arquitectura MLP</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contenido
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduccion">1. Introducción</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#importar-librerias">2. Importar librerías</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#carga-y-preparacion-de-datos">3. Carga y preparación de datos</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#estadisticas-descriptivas">4. Estadísticas descriptivas</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualizaciones-de-la-serie">5. Visualizaciones de la serie</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#serie-temporal-de-velocidad-del-viento">5.1 Serie temporal de velocidad del viento</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#retornos-logaritmicos">5.2 Retornos logarítmicos</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#volatilidad-historica-rolling-std">5.3 Volatilidad histórica (rolling std)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#autocorrelacion-y-diagnostico-de-heterocedasticidad">6. Autocorrelación y diagnóstico de heterocedasticidad</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#acf-de-la-serie-en-niveles">6.1 ACF de la serie en niveles</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#acf-de-los-cuadrados-diagnostico-de-heterocedasticidad">6.2 ACF de los cuadrados (diagnóstico de heterocedasticidad)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prueba-de-raiz-unitaria-augmented-dickeyfuller">7. Prueba de raíz unitaria (Augmented Dickey–Fuller)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#guardar-dataset-procesado">8. Guardar dataset procesado</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#resumen-y-conclusiones">9. Resumen y conclusiones</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#referencias">Referencias</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+Por Deep Learning · 3er Semestre · Universidad del Norte
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
