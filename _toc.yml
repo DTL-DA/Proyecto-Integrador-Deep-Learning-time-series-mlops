@@ -1,0 +1,13 @@
+format: jb-book
+root: intro
+chapters:
+  - file: notebooks/1_eda
+    title: "1. Análisis Exploratorio de Datos"
+  - file: notebooks/2_architecture_search
+    title: "2. Búsqueda de Arquitectura MLP"
+  - file: notebooks/3_model_training
+    title: "3. Entrenamiento y Evaluación"
+  - file: notebooks/4_residual_analysis
+    title: "4. Análisis de Residuos"
+  - file: notebooks/5_volatility_model
+    title: "5. Modelo de Volatilidad"

@@ -1,0 +1,29 @@
+title: "Proyecto Integrador — Predicción de Velocidad del Viento con MLP"
+author: "Deep Learning · 3er Semestre · Universidad del Norte"
+logo: ""
+
+execute:
+  execute_notebooks: "off"
+
+html:
+  use_issues_button: false
+  use_repository_button: true
+
+repository:
+  url: https://github.com/DTL-DA/Proyecto-Integrador-Deep-Learning-time-series-mlops
+  branch: main
+
+launch_buttons:
+  notebook_interface: "classic"
+
+parse:
+  myst_enable_extensions:
+    - amsmath
+    - dollarmath
+    - colon_fence
+
+sphinx:
+  config:
+    language: es
+    exclude_patterns: ["_build", "**.ipynb_checkpoints", "data", "app", "tests",
+                       "results", ".github", "book", "venv", ".venvs", "README.md", ".pytest_cache"]
